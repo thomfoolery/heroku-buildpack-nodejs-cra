@@ -66,15 +66,16 @@ install_yarn() {
 }
 
 install_nodejs() {
-  local version=${1:-12.x}
+  local version=${1:-14.x}
   local dir="${2:?}"
   local code os cpu resolve_result
 
   os=$(get_os)
   cpu=$(get_cpu)
 
-  echo "Resolving node version $version..."
-  resolve_result=$(resolve node "$version" || echo "failed")
+  # echo "fail_bin_install $version..."
+  # resolve_result=$(resolve node "$version" || echo "failed")
+  resolve_result="14.0.0"
 
   read -r number url < <(echo "$resolve_result")
 
@@ -83,13 +84,13 @@ install_nodejs() {
   fi
 
   echo "Downloading and installing node $number..."
-  code=$(curl "$url" -L --silent --fail --retry 5 --retry-max-time 15 -o /tmp/node.tar.gz --write-out "%{http_code}")
+  code=$(curl "https://heroku-nodebin-staging.s3.amazonaws.com/node/release/linux-x64/node-v14.0.0-linux-x64.tar.gz" -L --silent --fail --retry 5 --retry-max-time 15 -o /tmp/node.tar.gz --write-out "%{http_code}")
   if [ "$code" != "200" ]; then
     echo "Unable to download node: $code" && false
   fi
   tar xzf /tmp/node.tar.gz -C /tmp
   rm -rf "${dir:?}"/*
-  mv /tmp/node-v"$number"-"$os"-"$cpu"/* "$dir"
+  mv /tmp/node-v"$number"-rc.1-"$os"-"$cpu"/* "$dir"
   chmod +x "$dir"/bin/*
 }
 
