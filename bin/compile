@@ -98,6 +98,10 @@ meta_set "build-step" "init"
 [ -f "$BUILD_DIR/package-lock.json" ] && NPM_LOCK=true || NPM_LOCK=false
 YARN2=$(detect_yarn2 "$YARN" "$BUILD_DIR")
 
+if $YARN2; then
+  YARN=false
+fi
+
 ### Save build info
 features_init "nodejs" "$BUILD_DIR" "$CACHE_DIR" "$BP_DIR/features"
 log_initial_state
@@ -197,6 +201,20 @@ install_bins() {
 
 header "Installing binaries" | output "$LOG_FILE"
 install_bins | output "$LOG_FILE"
+
+configure_yarn2_vendors() {
+  alias yarn="$YARN_PATH"
+
+  echo "using vendored yarn from $YARN_PATH"
+
+  mcount "version.yarn.$(yarn --version)"
+  meta_set "yarn-version" "$(yarn --version)"
+}
+
+if $YARN2; then
+  header "Configuring vendored dependencies" | output "$LOG_FILE"
+  configure_yarn2_vendors | output "$LOG_FILE"
+fi
 
 restore_cache() {
   local cache_status cache_directories restore_cache_start_time
