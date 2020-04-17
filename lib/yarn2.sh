@@ -22,5 +22,5 @@ detect_yarn2() {
 
 get_yarn_path() {
   local build_dir="$1"
-  $YQ r "$build_dir/.yarnrc.yml" yarnPath 2>&1
+  echo $($YQ r "$build_dir/.yarnrc.yml" yarnPath 2>&1)
 }
